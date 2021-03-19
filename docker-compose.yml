@@ -1,0 +1,16 @@
+version: '3'
+services:
+  chain1:
+    image: exp_back:latest
+    restart: always
+    volumes:
+      - ./docker_chains/chain1.json:/usr/app/explorer-backend/config/production.json
+    ports:
+      - 3001:3000
+  chain2:
+    image: exp_back:latest
+    restart: always
+    volumes:
+      - ./docker_chains/chain1.json:/usr/app/explorer-backend/config/production.json
+    ports:
+      - 3002:3000

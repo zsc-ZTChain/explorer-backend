@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  redis2:
+    image: redis
+    container_name: "redis_${Explorer_Container_Index}"
+    command: redis-server --requirepass "shuqinkeji"
+
+  mysql2:
+    image: mysql:5.7
+    container_name: "mysql_${Explorer_Container_Index}"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=explorer
+    ports:
+      - ${Explorer_MySql_PORT}:3306
+    volumes:
+      - mysql2:/var/lib/mysql
+    depends_on:
+      - redis2
+
+  explorer_backend2:
+    image: exp_back:latest
+    container_name: "explorer_backend_${Explorer_Container_Index}"
+    restart: always
+    volumes:
+      - ../chain.json:/usr/app/explorer-backend/config/production.json
+    environment:
+      - Explorer_Sipc_RpcUrl=${Explorer_Sipc_RpcUrl}
+    ports:
+      - ${Explorer_Backend_PORT}:3000
+    depends_on:
+      - redis2
+      - mysql2
+
+  explorer_frontend2:
+    image: exp_front:latest
+    container_name: "explorer_frontend_${Explorer_Container_Index}"
+    volumes:
+      - ../nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - ${Explorer_Frontend_PORT}:80
+    depends_on:
+      - explorer_backend2
+volumes:
+  mysql2:

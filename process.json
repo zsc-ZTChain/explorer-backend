@@ -1,0 +1,10 @@
+{
+  "apps":[{
+    "name": "explorer",
+    "script": "bin/dev",
+    "env":{
+      "PORT": 3000,
+      "NODE_ENV": "production"
+    }
+  }]
+}

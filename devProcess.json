@@ -1,0 +1,10 @@
+{
+  "apps":[{
+    "name": "dev_explorer",
+    "script": "bin/dev",
+    "env":{
+      "PORT": 3002,
+      "NODE_ENV": "development"
+    }
+  }]
+}

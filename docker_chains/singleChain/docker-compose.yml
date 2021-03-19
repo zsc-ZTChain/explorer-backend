@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    command: redis-server --requirepass "shuqinkeji"
+
+  mysql:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=explorer
+    ports:
+      - 3308:3306
+    volumes:
+      - mysql:/var/lib/mysql
+    depends_on:
+      - redis
+
+  explorer_backend:
+    image: exp_back:latest
+    restart: always
+    volumes:
+      - ../chain.json:/usr/app/explorer-backend/config/production.json
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+      - mysql
+
+  explorer_frontend:
+    image: exp_front:latest
+    volumes:
+      - ../nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    depends_on:
+      - explorer_backend
+
+volumes:
+  mysql:

@@ -1,0 +1,42 @@
+#!./node_modules/.bin/ts-node
+import {dbPool, mysqlDb} from '../lib/db'
+const readline = require('linebyline')
+const path = require('path')
+
+dbPool.sync({
+  alter: true,
+  force: false,
+  logging: true,
+})
+  .then(() => {
+    console.log('database sync success')
+    new Promise((resolve, reject) => {
+      const re = dbPool.query(`SHOW FULL TABLES WHERE table_type = 'VIEW'`, {
+        replacements: [],
+        type: 'SELECT',
+      })
+      resolve(re)
+    }).then(async (result)=> {
+      if (result.length !== 4) {
+        let filepath = path.resolve(__dirname, '../init.sql')
+        const rl = readline(filepath);
+        try{
+          rl.on('line', (line) => {
+            mysqlDb.query(line, (error, results, fields) => {
+              if (error) console.log(error)
+              console.log('The solution is: ', results);
+            })
+          });
+          rl.on('close', (line) => {
+            mysqlDb.end()
+          });
+        }catch (e) {
+          console.log(e)
+        }
+      }
+    })
+  })
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
