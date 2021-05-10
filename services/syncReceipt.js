@@ -50,7 +50,7 @@ let syncReceipt = async () => {
           type: Sequelize.QueryTypes.INSERT
         })
       }
-      if (i === result - 1) {
+      if (i === result.length - 1) {
         await redis.set('curBlockNumber', data.blockNumber);
       }
     }
