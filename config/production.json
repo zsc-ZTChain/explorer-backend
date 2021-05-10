@@ -11,12 +11,12 @@
       "charset": "utf8",
       "collate": "utf8_bin"
     },
-    "connectionTimeout":0,
+    "connectionTimeout": 0,
     "pool": {
       "max": 5,
       "min": 0,
       "idle": 20000,
-      "acquire": 20000
+      "acquire": 60000
     },
     "isolationLevel": "READ UNCOMMITTED",
     "logging": false
@@ -50,8 +50,8 @@
     "reconnect": 1000
   },
   "token": {
-    "baseToken" : "SIPC",
-    "refreshingTime" : 5000,
+    "baseToken": "SIPC",
+    "refreshingTime": 5000,
     "crossAddress": "0xAa22934Df3867B8d59574dD4557ef1BA6dA2f8f3"
   },
   "amqp": {
