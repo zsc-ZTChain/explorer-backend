@@ -11,15 +11,20 @@ const { sendMessage } = require("../mq/sender");
 
 let syncReceipt = async () => {
   try {
-    const curBlockNumber = await redis.get('curBlockNumber');
+    let curBlockNumber = await redis.get('curBlockNumber');
+    
     if (!curBlockNumber) {
-      const startBlock = await dbPool.query(`select blockNumber from transactions order by blockNumber desc limt 1`);
-      const nowBlock = web3.eth.getBlockNumber();
-      await redis.set('curBlockNumber', startBlock || nowBlock);
+      const startBlock = await dbPool.query(`select blockNumber from transactions order by blockNumber desc limit 1`);
+
+      const nowBlock = await web3.eth.getBlockNumber();
+      curBlockNumber = startBlock[0][0] ? startBlock[0][0].blockNumber : nowBlock
+      await redis.set('curBlockNumber', curBlockNumber);
     }
-    const result = await dbPool.query(`select cast(hash as CHAR) hash,blockNumber,\`from\`,\`to\`,cast(\`value\` as char) 
+    curBlockNumber = Number(curBlockNumber);
+    let result = await dbPool.query(`select cast(hash as CHAR) hash,blockNumber,\`from\`,\`to\`,cast(\`value\` as char) 
     value from transactions where blockNumber between ${curBlockNumber} and ${curBlockNumber + 20} order by blockNumber`);
 
+    result = result[0]
     for (let i = 0; i < result.length; i++) {
       const data = result[i];
       const receipt = await web3.eth.getTransactionReceipt(String(data.hash));
@@ -55,7 +60,7 @@ let syncReceipt = async () => {
       }
     }
   } catch (e) {
-    console.log(e);
+    console.trace(e);
   }
 }
 
