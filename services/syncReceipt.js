@@ -25,6 +25,7 @@ let syncReceipt = async () => {
     value from transactions where blockNumber between ${curBlockNumber} and ${curBlockNumber + 20} order by blockNumber`);
 
     result = result[0]
+
     for (let i = 0; i < result.length; i++) {
       const data = result[i];
       const receipt = await web3.eth.getTransactionReceipt(String(data.hash));
@@ -56,7 +57,7 @@ let syncReceipt = async () => {
         })
       }
       if (i === result.length - 1) {
-        await redis.set('curBlockNumber', data.blockNumber);
+        await redis.set('curBlockNumber', data.blockNumber + 1);
       }
     }
   } catch (e) {
