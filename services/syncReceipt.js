@@ -26,6 +26,9 @@ let syncReceipt = async () => {
 
     result = result[0]
 
+    if (result.length === 0) {
+      await redis.set('curBlockNumber', curBlockNumber + 20);
+    }
     for (let i = 0; i < result.length; i++) {
       const data = result[i];
       const receipt = await web3.eth.getTransactionReceipt(String(data.hash));
