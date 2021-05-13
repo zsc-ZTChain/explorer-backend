@@ -12,11 +12,9 @@ const { sendMessage } = require("../mq/sender");
 let syncReceipt = async () => {
   try {
     let curBlockNumber = await redis.get('curBlockNumber');
-    
+    const nowBlock = await web3.eth.getBlockNumber();
     if (!curBlockNumber) {
       const startBlock = await dbPool.query(`select blockNumber from transactions order by blockNumber desc limit 1`);
-
-      const nowBlock = await web3.eth.getBlockNumber();
       curBlockNumber = startBlock[0][0] ? startBlock[0][0].blockNumber : nowBlock
       await redis.set('curBlockNumber', curBlockNumber);
     }
@@ -27,7 +25,7 @@ let syncReceipt = async () => {
     result = result[0]
 
     if (result.length === 0) {
-      await redis.set('curBlockNumber', curBlockNumber + 20);
+      await redis.set('curBlockNumber', curBlockNumber + 1 > nowBlock ? nowBlock - 20 : curBlockNumber + 1);
     }
     for (let i = 0; i < result.length; i++) {
       const data = result[i];
